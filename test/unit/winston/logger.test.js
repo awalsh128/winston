@@ -1134,3 +1134,206 @@ it('preserves prototype of info object in child logger', (done) => {
     });
   });
 });
+
+describe('Lazy Logging', function () {
+    it('should NOT invoke function when log level is disabled', function () {
+      let invoked = false;
+      const logger = winston.createLogger({
+        level: 'info',
+        transports: [new winston.transports.Console()]
+      });
+
+      logger.debug(() => {
+        invoked = true;
+        return 'This should not be logged';
+      });
+
+      assume(invoked).to.be.false();
+    });
+
+    it('should invoke function when log level is enabled', function (done) {
+      let invoked = false;
+      const logger = helpers.createLogger(function (info) {
+        assume(invoked).to.be.true();
+        assume(info.message).equals('Function was called');
+        assume(info.level).equals('debug');
+        done();
+      });
+
+      logger.level = 'debug';
+
+      logger.debug(() => {
+        invoked = true;
+        return 'Function was called';
+      });
+    });
+
+    it('should support lazy logging with info level', function (done) {
+      let errorCalled = false;
+      let debugCalled = false;
+      const logger = winston.createLogger({
+        level: 'info',
+        transports: [
+          new TransportStream({
+            log: function (info) {
+              if (info.level === 'error') {
+                errorCalled = true;
+                assume(info.message).equals('Error message');
+              }
+              done();
+            }
+          })
+        ]
+      });
+
+      // debug should NOT be called
+      logger.debug(() => {
+        debugCalled = true;
+        return 'Debug should not be called';
+      });
+
+      // error SHOULD be called
+      logger.error(() => 'Error message');
+
+      assume(debugCalled).to.be.false();
+      assume(errorCalled).to.be.true();
+    });
+
+    it('should handle function returning undefined as empty string', function (done) {
+      const logger = helpers.createLogger(function (info) {
+        assume(info.message).equals('');
+        done();
+      });
+
+      logger.level = 'info';
+      logger.info(() => undefined);
+    });
+
+    it('should preserve hot-path optimization for single string argument', function (done) {
+      const logger = helpers.createLogger(function (info) {
+        assume(info.message).equals('Regular string message');
+        assume(info.level).equals('info');
+        done();
+      });
+
+      logger.info('Regular string message');
+    });
+
+    it('should preserve hot-path optimization for single object argument', function (done) {
+      const logger = helpers.createLogger(function (info) {
+        assume(info.message).equals('Object message');
+        assume(info.level).equals('info');
+        assume(info.customField).equals('customValue');
+        done();
+      });
+
+      logger.info({ message: 'Object message', customField: 'customValue' });
+    });
+
+    it('should be backwards compatible with string + metadata', function (done) {
+      const logger = helpers.createLogger(function (info) {
+        assume(info.message).equals('Message with metadata');
+        assume(info.level).equals('info');
+        assume(info.userId).equals(123);
+        done();
+      });
+
+      logger.info('Message with metadata', { userId: 123 });
+    });
+
+    it('should NOT invoke lazy function when level is disabled with child logger', function () {
+      let invoked = false;
+      const logger = winston.createLogger({
+        level: 'info',
+        transports: [new winston.transports.Console()]
+      });
+
+      const childLogger = logger.child({ requestId: '123' });
+
+      childLogger.debug(() => {
+        invoked = true;
+        return 'Child debug message';
+      });
+
+      assume(invoked).to.be.false();
+    });
+
+    it('should invoke lazy function when level is enabled with child logger', function (done) {
+      let invoked = false;
+      const logger = helpers.createLogger(function (info) {
+        assume(invoked).to.be.true();
+        assume(info.message).equals('Child log message');
+        assume(info.requestId).equals('123');
+        done();
+      });
+
+      logger.level = 'debug';
+      const childLogger = logger.child({ requestId: '123' });
+
+      childLogger.debug(() => {
+        invoked = true;
+        return 'Child log message';
+      });
+    });
+
+    it('should support lazy logging with isLevelEnabledFunctions', function () {
+      const logger = winston.createLogger({
+        level: 'warn',
+        transports: [new winston.transports.Console()]
+      });
+
+      assume(logger.isDebugEnabled()).to.be.false();
+      assume(logger.isInfoEnabled()).to.be.false();
+      assume(logger.isWarnEnabled()).to.be.true();
+      assume(logger.isErrorEnabled()).to.be.true();
+    });
+
+    it('should avoid expensive computations when level is disabled', function () {
+      let expensiveCallCount = 0;
+      const logger = winston.createLogger({
+        level: 'error',
+        transports: [new winston.transports.Console()]
+      });
+
+      // Simulate 100 expensive debug logs when debug is disabled
+      for (let i = 0; i < 100; i++) {
+        logger.debug(() => {
+          expensiveCallCount++;
+          return `Expensive computation ${i}`;
+        });
+      }
+
+      assume(expensiveCallCount).equals(0);
+    });
+
+    it('should support lazy logging with custom levels', function (done) {
+      let customLevelCalled = false;
+      let logger = winston.createLogger({
+        levels: {
+          fatal: 0,
+          error: 1,
+          warn: 2,
+          info: 3,
+          debug: 4
+        },
+        transports: [
+          new TransportStream({
+            log: function (info) {
+              assume(customLevelCalled).to.be.true();
+              assume(info.level).equals('debug');
+              assume(info.message).equals('Custom level message');
+              done();
+            }
+          })
+        ]
+      });
+
+      logger.level = 'debug';
+
+      logger.debug(() => {
+        customLevelCalled = true;
+        return 'Custom level message';
+      });
+    });
+  });
+});
