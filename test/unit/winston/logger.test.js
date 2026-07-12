@@ -30,7 +30,7 @@ const testLogFixturesPath = path.join(
 describe('Logger Instance', function () {
   describe('Configuration', function () {
     it('.configure()', function () {
-      let logger = winston.createLogger({
+      const logger = winston.createLogger({
         transports: [new winston.transports.Console()]
       });
 
@@ -43,7 +43,7 @@ describe('Logger Instance', function () {
     });
 
     it('.configure({ transports })', function () {
-      let logger = winston.createLogger();
+      const logger = winston.createLogger();
 
       assume(logger.transports.length).equals(0);
 
@@ -56,8 +56,8 @@ describe('Logger Instance', function () {
     });
 
     it('.configure({ transports, format })', function () {
-      let logger = winston.createLogger(),
-        format = logger.format;
+      const logger = winston.createLogger();
+      const format = logger.format;
 
       assume(logger.transports.length).equals(0);
 
@@ -74,7 +74,7 @@ describe('Logger Instance', function () {
 
   describe('Get Highest Log Level', function () {
     it('should return the highest log level', function () {
-      let logger = winston.createLogger();
+      const logger = winston.createLogger();
 
       const highestLogLevel = logger.getHighestLogLevel();
 
@@ -96,7 +96,7 @@ describe('Logger Instance', function () {
     it.each(defaultLevelTestCases)(
       'should indicate "%s" level is enabled if logger is constructed with that level',
       function (level) {
-        let logger = winston.createLogger({ level });
+        const logger = winston.createLogger({ level });
 
         const isLevelEnabled = logger.isLevelEnabled(level);
 
@@ -105,7 +105,7 @@ describe('Logger Instance', function () {
     );
 
     it('should only enable levels "info" and above by default', function () {
-      let logger = winston.createLogger();
+      const logger = winston.createLogger();
 
       const isHttpEnabled = logger.isLevelEnabled('http');
       const isInfoEnabled = logger.isLevelEnabled('info');
@@ -122,7 +122,7 @@ describe('Logger Instance', function () {
     it.each(invalidLevelTestCases)(
       'should indicate "%s" level is not enabled',
       function (level) {
-        let logger = winston.createLogger();
+        const logger = winston.createLogger();
 
         const isLevelEnabled = logger.isLevelEnabled(level);
 
@@ -152,16 +152,16 @@ describe('Logger Instance', function () {
   describe('Transports', function () {
     describe('add', function () {
       it('should throw error when adding an invalid transport', function () {
-        let logger = winston.createLogger();
+        const logger = winston.createLogger();
         assume(function () {
           logger.add(5);
         }).throws(/invalid transport/i);
       });
 
       it('should add the expected transport', function (done) {
-        let logger = winston.createLogger();
-        let expected = { message: 'foo', level: 'info' };
-        let transport = new TransportStream({
+        const logger = winston.createLogger();
+        const expected = { message: 'foo', level: 'info' };
+        const transport = new TransportStream({
           log: function (info) {
             assume(info.message).equals('foo');
             assume(info.level).equals('info');
@@ -178,7 +178,7 @@ describe('Logger Instance', function () {
       });
 
       it('should allow adding multiple transports', function () {
-        let transports = [
+        const transports = [
           new winston.transports.File({
             name: 'filelog-info.log',
             filename: path.join(testLogFixturesPath, 'filelog-info.log'),
@@ -190,7 +190,7 @@ describe('Logger Instance', function () {
             level: 'error'
           })
         ];
-        let logger = winston.createLogger({
+        const logger = winston.createLogger({
           transports: transports
         });
 
@@ -205,14 +205,14 @@ describe('Logger Instance', function () {
 
     describe('remove', function () {
       it('should do nothing if transport was not added', function () {
-        let transports = [
+        const transports = [
           new winston.transports.Console(),
           new winston.transports.File({
             filename: path.join(testLogFixturesPath, 'filelog.log')
           })
         ];
 
-        let logger = winston
+        const logger = winston
           .createLogger({ transports: transports })
           .remove(new winston.transports.Console());
 
@@ -226,14 +226,14 @@ describe('Logger Instance', function () {
       });
 
       it('should remove transport when matching one is found', function () {
-        let transports = [
+        const transports = [
           new winston.transports.Console(),
           new winston.transports.File({
             filename: path.join(testLogFixturesPath, 'filelog.log')
           })
         ];
 
-        let logger = winston.createLogger({ transports: transports });
+        const logger = winston.createLogger({ transports: transports });
 
         assume(logger.transports.length).equals(2);
         logger.remove(transports[0]);
@@ -242,7 +242,7 @@ describe('Logger Instance', function () {
       });
 
       it('should remove specified logger even when duplicate exists', function () {
-        let transports = [
+        const transports = [
           new winston.transports.File({
             name: 'filelog-info.log',
             filename: path.join(testLogFixturesPath, 'filelog-info.log'),
@@ -254,7 +254,7 @@ describe('Logger Instance', function () {
             level: 'error'
           })
         ];
-        let logger = winston.createLogger({
+        const logger = winston.createLogger({
           transports: transports
         });
 
@@ -266,14 +266,14 @@ describe('Logger Instance', function () {
 
     describe('clear', function () {
       it('should do nothing when no transports exist', function () {
-        let logger = winston.createLogger();
+        const logger = winston.createLogger();
         assume(logger.transports.length).equals(0);
         logger.clear();
         assume(logger.transports.length).equals(0);
       });
 
       it('should remove all transports', function () {
-        let logger = winston.createLogger({
+        const logger = winston.createLogger({
           transports: [new winston.transports.Console()]
         });
 
@@ -285,8 +285,8 @@ describe('Logger Instance', function () {
 
     describe('stream', function () {
       it('should return a log stream for all transports', function () {
-        let logger = winston.createLogger();
-        let outStream = logger.stream();
+        const logger = winston.createLogger();
+        const outStream = logger.stream();
 
         assume(isStream(outStream)).true();
       });
@@ -296,7 +296,7 @@ describe('Logger Instance', function () {
   describe('Log Levels', function () {
     it('report unknown levels', function () {
       const consoleErrorSpy = jest.spyOn(console, 'error');
-      let logger = winston.createLogger();
+      const logger = winston.createLogger();
 
       logger.log({ message: 'foo', level: 'bar' });
 
@@ -307,7 +307,7 @@ describe('Logger Instance', function () {
     });
 
     it('.<level>()', function (done) {
-      let logger = helpers.createLogger(function (info) {
+      const logger = helpers.createLogger(function (info) {
         assume(info).is.an('object');
         assume(info.level).equals('info');
         assume(info.message).is.a('string');
@@ -326,8 +326,8 @@ describe('Logger Instance', function () {
     });
 
     it('default levels', function (done) {
-      let logger = winston.createLogger();
-      let expected = { message: 'foo', level: 'debug' };
+      const logger = winston.createLogger();
+      const expected = { message: 'foo', level: 'debug' };
 
       function logLevelTransport(level) {
         return new TransportStream({
@@ -361,7 +361,7 @@ describe('Logger Instance', function () {
     });
 
     it('custom levels', function (done) {
-      let logger = winston.createLogger({
+      const logger = winston.createLogger({
         levels: {
           bad: 0,
           test: 1,
@@ -369,7 +369,7 @@ describe('Logger Instance', function () {
         }
       });
 
-      let expected = { message: 'foo', level: 'test' };
+      const expected = { message: 'foo', level: 'test' };
 
       function filterLevelTransport(level) {
         return new TransportStream({
@@ -449,7 +449,7 @@ describe('Logger Instance', function () {
 
     describe('Log Levels Enabled', function () {
       it('default levels', function () {
-        let logger = winston.createLogger({
+        const logger = winston.createLogger({
           level: 'verbose',
           levels: winston.config.npm.levels,
           transports: [new winston.transports.Console()]
@@ -483,10 +483,10 @@ describe('Logger Instance', function () {
       });
 
       it('default levels, transport override', function () {
-        let transport = new winston.transports.Console();
+        const transport = new winston.transports.Console();
         transport.level = 'debug';
 
-        let logger = winston.createLogger({
+        const logger = winston.createLogger({
           level: 'info',
           levels: winston.config.npm.levels,
           transports: [transport]
@@ -520,7 +520,7 @@ describe('Logger Instance', function () {
       });
 
       it('default levels, no transports', function () {
-        let logger = winston.createLogger({
+        const logger = winston.createLogger({
           level: 'verbose',
           levels: winston.config.npm.levels,
           transports: []
@@ -554,7 +554,7 @@ describe('Logger Instance', function () {
       });
 
       it('custom levels', function () {
-        let logger = winston.createLogger({
+        const logger = winston.createLogger({
           level: 'test',
           levels: {
             bad: 0,
@@ -583,7 +583,7 @@ describe('Logger Instance', function () {
       });
 
       it('custom levels, no transports', function () {
-        let logger = winston.createLogger({
+        const logger = winston.createLogger({
           level: 'test',
           levels: {
             bad: 0,
@@ -612,10 +612,10 @@ describe('Logger Instance', function () {
       });
 
       it('custom levels, transport override', function () {
-        let transport = new winston.transports.Console();
+        const transport = new winston.transports.Console();
         transport.level = 'ok';
 
-        let logger = winston.createLogger({
+        const logger = winston.createLogger({
           level: 'bad',
           levels: {
             bad: 0,
@@ -751,7 +751,7 @@ describe('Logger Instance', function () {
 
   describe('Profiling', function () {
     it('ending profiler with object argument should be included in output', function (done) {
-      let logger = helpers.createLogger(function (info) {
+      const logger = helpers.createLogger(function (info) {
         assume(info).is.an('object');
         assume(info.something).equals('ok');
         assume(info.level).equals('info');
@@ -772,7 +772,7 @@ describe('Logger Instance', function () {
 
     // TODO: Revisit if this is a valid test
     it('calling profile with a callback function should not make a difference', function (done) {
-      let logger = helpers.createLogger(function (info) {
+      const logger = helpers.createLogger(function (info) {
         assume(info).is.an('object');
         assume(info.something).equals('ok');
         assume(info.level).equals('info');
@@ -795,7 +795,7 @@ describe('Logger Instance', function () {
     });
 
     it('should stop a timer when `done` is called on it', function (done) {
-      let logger = helpers.createLogger(function (info) {
+      const logger = helpers.createLogger(function (info) {
         assume(info).is.an('object');
         assume(info.something).equals('ok');
         assume(info.level).equals('info');
@@ -805,7 +805,7 @@ describe('Logger Instance', function () {
         done();
       });
 
-      let timer = logger.startTimer();
+      const timer = logger.startTimer();
       setTimeout(function () {
         timer.done({
           message: 'testing1',
@@ -1057,7 +1057,7 @@ describe('Logger Instance', function () {
   describe('Backwards Compatability', function () {
     describe('Winston V2 Log', function () {
       it('.log(level, message)', function (done) {
-        let logger = helpers.createLogger(function (info) {
+        const logger = helpers.createLogger(function (info) {
           assume(info).is.an('object');
           assume(info.level).equals('info');
           assume(info.message).equals('Some super awesome log message');
@@ -1098,8 +1098,8 @@ describe('Logger Instance', function () {
       });
 
       it('.log(level, message, meta)', function (done) {
-        let meta = { one: 2 };
-        let logger = helpers.createLogger(function (info) {
+        const meta = { one: 2 };
+        const logger = helpers.createLogger(function (info) {
           assume(info).is.an('object');
           assume(info.level).equals('info');
           assume(info.message).equals('Some super awesome log message');
@@ -1117,7 +1117,7 @@ describe('Logger Instance', function () {
           winston.format.printf(info => `${info.level}: ${info.message}`)
         );
 
-        let logger = helpers.createLogger(function (info) {
+        const logger = helpers.createLogger(function (info) {
           assume(info).is.an('object');
           assume(info.level).equals('info');
           assume(info.message).equals('100% such wow {"much":"javascript"}');
@@ -1142,7 +1142,7 @@ describe('Logger Instance', function () {
           )
         );
 
-        let logger = helpers.createLogger(function (info) {
+        const logger = helpers.createLogger(function (info) {
           assume(info).is.an('object');
           assume(info.level).equals('info');
           assume(info.message).equals('100% such wow {"much":"javascript"}');
@@ -1353,7 +1353,7 @@ describe('Lazy Logging', function () {
 
   it('should support lazy logging with custom levels', function (done) {
     let customLevelCalled = false;
-    let logger = winston.createLogger({
+    const logger = winston.createLogger({
       levels: {
         fatal: 0,
         error: 1,

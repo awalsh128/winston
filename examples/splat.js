@@ -1,5 +1,5 @@
 const winston = require('../');
-let { format } = winston;
+const { format } = winston;
 
 /*
  * Simple helper for stringifying all remaining
@@ -14,7 +14,7 @@ function rest(info) {
   }));
 }
 
-let logger = winston.createLogger({
+const logger = winston.createLogger({
   transports: [new winston.transports.Console({ level: 'info' })],
   format: format.combine(
     format.splat(),

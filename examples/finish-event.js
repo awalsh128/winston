@@ -22,7 +22,7 @@ logger.on('finish', function () {
   console.log('Your logger is done logging');
 });
 
-logger.log('info', 'Hello, this is a raw logging event',   { 'foo': 'bar' });
-logger.log('info', 'Hello, this is a raw logging event 2', { 'foo': 'bar' });
+logger.log('info', 'Hello, this is a raw logging event',   { foo: 'bar' });
+logger.log('info', 'Hello, this is a raw logging event 2', { foo: 'bar' });
 
 logger.end();

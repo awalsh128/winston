@@ -19,7 +19,7 @@ const logger = createLogger({
       stream: fs.createWriteStream('./example.log')
     })
   ]
-})
+});
 
 logger.log({
   level: 'info',

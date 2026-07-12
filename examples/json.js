@@ -7,9 +7,9 @@ const winston = require('../');
 //
 const logger = winston.createLogger({
   transports: [
-    new winston.transports.Console(),
+    new winston.transports.Console()
   ]
 });
 
-logger.log('info', 'Hello, this is a raw logging event',   { 'foo': 'bar' });
-logger.log('info', 'Hello, this is a raw logging event 2', { 'foo': 'bar' });
+logger.log('info', 'Hello, this is a raw logging event',   { foo: 'bar' });
+logger.log('info', 'Hello, this is a raw logging event 2', { foo: 'bar' });

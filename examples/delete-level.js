@@ -15,10 +15,10 @@ const logger = createLogger({
     json()
   ),
   transports: [
-    new transports.Console(),
+    new transports.Console()
   ]
 });
 
-logger.info('This will print without { level }',  { 'foo': 'bar' });
-logger.info('This will also print without { level }', { 'foo': 'bar' });
+logger.info('This will print without { level }',  { foo: 'bar' });
+logger.info('This will also print without { level }', { foo: 'bar' });
 

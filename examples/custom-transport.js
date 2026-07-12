@@ -27,7 +27,7 @@ class CustomTransport extends Transport {
 
     callback();
   }
-};
+}
 
 const transport = new CustomTransport();
 transport.on('logged', (info) => {
@@ -40,4 +40,4 @@ const logger = createLogger({
   transports: [transport]
 });
 
-logger.info('hello')
+logger.info('hello');

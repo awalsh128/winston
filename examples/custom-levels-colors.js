@@ -42,4 +42,4 @@ const logger = module.exports = winston.createLogger({
   level: 'custom'
 });
 
-logger.custom('hello')
+logger.custom('hello');
